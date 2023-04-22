@@ -1,0 +1,68 @@
+
+ syntax = "proto3";
+ package rusprofile;
+
+
+
+
+option go_package = "./pkg/grpc/";
+import "google/api/annotations.proto";
+ //option go_package = "github.com/yourorg/yourprotos/gen/go/your/service/v1";
+
+service RusprofileWrapperService {
+    // Ping
+    rpc DoPing (PingRequest) returns (PingResponse) {
+        option (google.api.http) = {
+            get: "/rusprofile/api/v1/ping"
+        };
+    }
+
+     // Get company by inn
+    rpc GetCompanyByINN (GetCompanyByINNRequestV1) returns (GetCompanyByINNResponseV1) {
+        option (google.api.http) = {
+            get: "/rusprofile/api/v1/company/{inn}"
+        };
+    }
+
+}
+
+// PingRequest
+message PingRequest {
+  // Request message, optional
+  string message = 1;
+}
+// PingResponse
+message PingResponse {
+  // HTTP status response code
+  uint32 code = 1;
+  // Response message
+  string message = 2;
+}
+
+// GetCompanyByINNRequestV1
+message GetCompanyByINNRequestV1 {
+  string inn = 1;
+}
+
+// Компания
+message company {
+  // ИНН
+  string inn = 1;
+  // КПП
+  string kpp = 2;
+  // Название компании
+  string name = 3;
+  // ФИО Руководителя
+  string headname = 4;
+}
+
+//  GetCompanyByINNResponseV1
+message GetCompanyByINNResponseV1 {
+  // Code is grpc response codes
+  uint32 code = 1;
+  // Message will be either ok or some error description
+  string message = 2;
+  // Данные по компании
+  company company = 3;
+}
+

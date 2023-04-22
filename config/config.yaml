@@ -1,0 +1,6 @@
+server:
+  hostGrpc: "0.0.0.0"
+  portGrpc: "81"
+  hostHttp: "0.0.0.0"
+  portHttp: "80"
+

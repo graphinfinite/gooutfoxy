@@ -1,0 +1,169 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "rusprofile.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rusprofile/api/v1/company/{inn}": {
+      "get": {
+        "summary": "Get company by inn",
+        "operationId": "RusprofileWrapperService_GetCompanyByINN",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/rusprofileGetCompanyByINNResponseV1"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "inn",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RusprofileWrapperService"
+        ]
+      }
+    },
+    "/rusprofile/api/v1/ping": {
+      "get": {
+        "summary": "Ping",
+        "operationId": "RusprofileWrapperService_DoPing",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/rusprofilePingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "message",
+            "description": "Request message, optional.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RusprofileWrapperService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "rusprofileGetCompanyByINNResponseV1": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int64",
+          "title": "Code is grpc response codes"
+        },
+        "message": {
+          "type": "string",
+          "title": "Message will be either ok or some error description"
+        },
+        "company": {
+          "$ref": "#/definitions/rusprofilecompany",
+          "title": "Данные по компании"
+        }
+      },
+      "title": "GetCompanyByINNResponseV1"
+    },
+    "rusprofilePingResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int64",
+          "title": "HTTP status response code"
+        },
+        "message": {
+          "type": "string",
+          "title": "Response message"
+        }
+      },
+      "title": "PingResponse"
+    },
+    "rusprofilecompany": {
+      "type": "object",
+      "properties": {
+        "inn": {
+          "type": "string",
+          "title": "ИНН"
+        },
+        "kpp": {
+          "type": "string",
+          "title": "КПП"
+        },
+        "name": {
+          "type": "string",
+          "title": "Название компании"
+        },
+        "headname": {
+          "type": "string",
+          "title": "ФИО Руководителя"
+        }
+      },
+      "title": "Компания"
+    }
+  }
+}
