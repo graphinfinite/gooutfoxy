@@ -14,11 +14,11 @@ func Run() {
 	cfg := config.GetConfig()
 	zlog := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).With().Timestamp().Logger()
 
-	rpc := rpclient.NewClient("https://www.rusprofile.ru", time.Minute)
+	zlog.Info().Msgf("run app with config: %#v", cfg)
 
-	//TODO add usecase layeer
+	rpc := rpclient.NewClient("https://www.rusprofile.ru", time.Minute*1, zlog)
 
-	server := grpcserver.NewGrpcServer(rpc, &zlog)
+	server := grpcserver.NewGrpcServer(rpc, zlog)
 	server.Run(cfg)
 
 }
