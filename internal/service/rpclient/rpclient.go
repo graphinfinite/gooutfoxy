@@ -1,7 +1,7 @@
 package rpclient
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 	"net/url"
 	"time"
@@ -30,13 +30,14 @@ type CompanyData struct {
 	HeadName string
 }
 
-type CompanyNotFound error
+var ErrCompanyNotFound = errors.New("company not found")
 
 // parse company from https://www.rusprofile.ru/search?query={inn}
 func (c *Client) GetCompanyByINN(inn string) (CompanyData, error) {
 	baseURL, _ := url.Parse(c.BaseUrl + "/search")
 	params := url.Values{}
 	params.Add("query", inn)
+	params.Add("type", "ul")
 	baseURL.RawQuery = params.Encode()
 
 	c.Logger.Debug().Msgf("send request %s", baseURL.String())
@@ -46,7 +47,7 @@ func (c *Client) GetCompanyByINN(inn string) (CompanyData, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return CompanyData{}, fmt.Errorf("status code: %d", resp.StatusCode)
+		return CompanyData{}, ErrCompanyNotFound
 	}
 
 	// PARSING <^\_/^>
@@ -63,11 +64,10 @@ func (c *Client) GetCompanyByINN(inn string) (CompanyData, error) {
 
 	elems := getElementsByAttrs(doc, attrs)
 	if len(elems) != 4 {
-		return CompanyData{}, fmt.Errorf("company not found")
+		return CompanyData{}, ErrCompanyNotFound
 	}
 	company := CompanyData{}
 	for key, node := range elems {
-		fmt.Println(key, node)
 		switch key {
 		case "company-name":
 			company.Name = node.FirstChild.Data

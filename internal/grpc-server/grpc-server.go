@@ -2,6 +2,7 @@ package grpcserver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -40,7 +41,9 @@ func NewGrpcServer(rpc RusProfileClientInterface, log zerolog.Logger) *GrpcServe
 }
 
 func httpResponseModifier(ctx context.Context, w http.ResponseWriter, p proto.Message) error {
+
 	md, ok := runtime.ServerMetadataFromContext(ctx)
+
 	if !ok {
 		return nil
 	}
@@ -113,12 +116,18 @@ func (s *GrpcServer) GetCompanyByINN(ctx context.Context, req *pb.GetCompanyByIN
 	_, err := strconv.Atoi(req.Inn)
 	if err != nil || len(req.GetInn()) != 10 {
 		_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "400"))
-		return &pb.GetCompanyByINNResponseV1{Code: uint32(0), Message: ""}, fmt.Errorf("ИНН компании должен состоять из 10 цифр")
+		return &pb.GetCompanyByINNResponseV1{Code: uint32(3), Message: "ИНН компании должен состоять из 10 цифр"}, nil
 	}
-	company, err := s.RusProfileClient.GetCompanyByINN(req.GetInn())
-	if err != nil {
+	company, err := s.RusProfileClient.GetCompanyByINN(req.Inn)
+	switch {
+	case errors.Is(err, rpclient.ErrCompanyNotFound):
 		_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "404"))
-		return &pb.GetCompanyByINNResponseV1{Code: uint32(0), Message: ""}, err
+		return &pb.GetCompanyByINNResponseV1{Code: uint32(5), Message: fmt.Sprintf("Компания c ИНН %s не найдена", req.Inn)}, nil
+	case err != nil:
+		s.Logger.Err(err).Msg("RusProfileClient/GetCompanyByINN")
+		_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "500"))
+		return &pb.GetCompanyByINNResponseV1{Code: uint32(13), Message: "internal server error"}, nil
+	default:
+		return &pb.GetCompanyByINNResponseV1{Code: uint32(0), Message: "ok", Company: convCompany(company)}, nil
 	}
-	return &pb.GetCompanyByINNResponseV1{Code: uint32(0), Message: "ok", Company: convCompany(company)}, nil
 }
