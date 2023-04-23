@@ -8,3 +8,15 @@
 - Docker container
 - parsing rusprofile.ru
 
+## Run
+```sh
+go run cmd/rusprofile/main.go
+```
+
+## Docker
+```sh
+docker build --tag "ruspro" .
+docker run -p 80:80 -p 81:81 "ruspro"
+```
+
+

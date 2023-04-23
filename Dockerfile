@@ -15,7 +15,4 @@ WORKDIR /root/
 
 COPY --from=builder ./temp/.bin/rusprofile .
 COPY --from=builder ./temp/config config/
-
-EXPOSE 8787
-
 CMD ["./rusprofile"]
